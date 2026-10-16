@@ -1,0 +1,981 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#09090c">
+  <meta name="description" content="FANTASMAS — painel de gestão BFE e SGB">
+  <title>FANTASMAS | Central de Gestão</title>
+  <link rel="icon" type="image/png" href="assets/imagens/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- CARREGAMENTO -->
+  <div id="loading-screen" class="loading-screen">
+    <div class="loading-mark">F<span>✦</span></div>
+    <h1>FANTASMAS</h1>
+    <p>PREPARANDO A CENTRAL...</p>
+    <div class="loading-bar"><span></span></div>
+  </div>
+
+  <!-- ACESSO DEMONSTRATIVO -->
+  <main id="auth-screen" class="auth-screen" hidden>
+    <div class="auth-glow auth-glow-one"></div>
+    <div class="auth-glow auth-glow-two"></div>
+
+    <section class="auth-card">
+      <div class="auth-brand">
+        <div class="brand-emblem">F<span>✦</span></div>
+        <span class="eyebrow">CENTRAL DE COMANDO</span>
+        <h1>FANTASMAS</h1>
+        <p>QUALQUER MISSÃO, EM QUALQUER LUGAR, A QUALQUER HORA.</p>
+      </div>
+
+      <div class="auth-tabs" role="tablist" aria-label="Acesso">
+        <button type="button" class="auth-tab active" id="show-login" data-auth-view="login">Entrar</button>
+        <button type="button" class="auth-tab" id="show-register" data-auth-view="register">Criar conta</button>
+      </div>
+
+      <form id="login-form" autocomplete="on">
+        <div class="field">
+          <label for="login-username">USUÁRIO</label>
+          <input id="login-username" name="username" type="text" minlength="4" maxlength="40" autocomplete="username" placeholder="Seu usuário" required>
+        </div>
+
+        <div class="field">
+          <label for="login-password">SENHA</label>
+          <div class="password-field">
+            <input id="login-password" name="password" type="password" minlength="4" autocomplete="current-password" placeholder="Sua senha" required>
+            <button type="button" data-toggle-password="login-password" aria-label="Mostrar senha">◉</button>
+          </div>
+        </div>
+
+        <p id="auth-message" class="form-message" role="status" aria-live="polite"></p>
+        <button class="btn btn-primary btn-full" type="submit" id="login-submit">
+          ENTRAR NO SISTEMA <span>→</span>
+        </button>
+      </form>
+
+      <form id="register-form" hidden autocomplete="on">
+        <div class="field">
+          <label for="register-username">USUÁRIO</label>
+          <input id="register-username" name="username" type="text" minlength="4" maxlength="40" autocomplete="username" placeholder="Crie um usuário" required>
+        </div>
+
+        <div class="field">
+          <label for="register-password">SENHA</label>
+          <div class="password-field">
+            <input id="register-password" name="password" type="password" minlength="4" autocomplete="new-password" placeholder="Crie uma senha" required>
+            <button type="button" data-toggle-password="register-password" aria-label="Mostrar senha">◉</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="register-confirm-password">CONFIRMAR SENHA</label>
+          <input id="register-confirm-password" name="confirmPassword" type="password" minlength="4" autocomplete="new-password" placeholder="Repita a senha" required>
+        </div>
+
+        <p id="register-message" class="form-message" role="status" aria-live="polite"></p>
+        <button class="btn btn-primary btn-full" type="submit" id="register-submit">
+          CRIAR CONTA <span>→</span>
+        </button>
+      </form>
+
+      <div class="auth-foot">
+        <span class="status-dot"></span>
+        INTERFACE DE ACESSO DEMONSTRATIVA
+      </div>
+    </section>
+  </main>
+
+  <!-- APLICAÇÃO -->
+  <div id="app-screen" class="app-shell" hidden>
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-emblem small">F<span>✦</span></div>
+        <div>
+          <strong>FANTASMAS</strong>
+          <small>PAINEL DE GESTÃO</small>
+        </div>
+        <button type="button" id="sidebar-close" class="icon-btn mobile-only" aria-label="Fechar menu">✕</button>
+      </div>
+
+      <div class="server-card">
+        <div class="server-avatar">👻</div>
+        <div>
+          <strong>FANTASMAS</strong>
+          <small><span class="status-dot"></span> CENTRAL OPERACIONAL</small>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav" aria-label="Navegação principal">
+        <span class="nav-label">VISÃO GERAL</span>
+
+        <button class="nav-item active" type="button" data-page="dashboard">
+          <span>▦</span> Painel geral
+        </button>
+
+        <button class="nav-item" type="button" data-page="members">
+          <span>♙</span> Central de membros
+        </button>
+
+        <span class="nav-label">DEPARTAMENTOS</span>
+
+        <button class="nav-item" type="button" data-page="bfe">
+          <span>🛡️</span> BFE <b id="bfe-nav-count">0</b>
+        </button>
+
+        <button class="nav-item" type="button" data-page="sgb">
+          <span>🔎</span> SGB <b id="sgb-nav-count">0</b>
+        </button>
+
+        <span class="nav-label">OPERAÇÕES</span>
+
+        <button class="nav-item" type="button" data-page="quotas">
+          <span>◷</span> Cotas semanais
+        </button>
+
+        <button class="nav-item" type="button" data-page="tests">
+          <span>⌛</span> Fantasmas em teste
+        </button>
+
+        <button class="nav-item" type="button" data-page="training">
+          <span>✦</span> Treinamentos
+        </button>
+
+        <button class="nav-item" type="button" data-page="inactivity">
+          <span>◴</span> Dias inativos
+        </button>
+
+        <button class="nav-item" type="button" data-page="logs">
+          <span>▤</span> Logs do servidor
+        </button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="sidebar-user">
+          <div class="user-avatar" id="sidebar-user-avatar">F</div>
+          <div class="user-info">
+            <strong id="sidebar-username">FANTASMA</strong>
+            <small>SESSÃO DEMONSTRATIVA</small>
+          </div>
+          <button type="button" id="logout-button" class="icon-btn" title="Sair" aria-label="Sair">⇥</button>
+        </div>
+        <small class="sidebar-version">FANTASMAS • GESTÃO ONLINE</small>
+      </div>
+    </aside>
+
+    <div class="main-area">
+      <header class="topbar">
+        <div class="topbar-start">
+          <button type="button" id="sidebar-toggle" class="icon-btn menu-toggle" aria-label="Abrir menu">☰</button>
+          <div>
+            <div class="breadcrumb">
+              FANTASMAS <span>/</span>
+              <strong id="breadcrumb-current">PAINEL GERAL</strong>
+            </div>
+            <p id="topbar-subtitle">VISÃO GERAL DA ORGANIZAÇÃO</p>
+          </div>
+        </div>
+
+        <div class="topbar-end">
+          <div id="connection-status" class="connection-status">
+            <span class="status-dot"></span>
+            <span id="connection-label">AGUARDANDO CONEXÃO</span>
+          </div>
+          <time id="current-date">--/--/----</time>
+        </div>
+      </header>
+
+      <main id="main-content" class="page-content">
+
+        <!-- PAINEL GERAL -->
+        <section id="page-dashboard" class="page-section active">
+          <div class="page-heading">
+            <div>
+              <span class="eyebrow">CENTRAL DE COMANDO</span>
+              <h1>Painel geral <span class="heading-spark">✦</span></h1>
+              <p>Bem-vindo, <strong id="welcome-username">FANTASMA</strong>. Aqui está o resumo da organização.</p>
+            </div>
+            <button type="button" class="btn btn-primary" data-open-modal="member-modal">＋ ADICIONAR MEMBRO</button>
+          </div>
+
+          <div class="stats-grid">
+            <article class="stat-card">
+              <div class="stat-top"><span>TOTAL DE MEMBROS</span><i>♙</i></div>
+              <strong id="stat-total-members">0</strong>
+              <small>CADASTRADOS NO SISTEMA</small>
+            </article>
+
+            <article class="stat-card accent-bfe">
+              <div class="stat-top"><span>DEPARTAMENTO BFE</span><i>🛡️</i></div>
+              <strong id="stat-bfe-members">0</strong>
+              <small>MEMBROS DO BFE</small>
+            </article>
+
+            <article class="stat-card accent-sgb">
+              <div class="stat-top"><span>DEPARTAMENTO SGB</span><i>🔎</i></div>
+              <strong id="stat-sgb-members">0</strong>
+              <small>MEMBROS DA SGB</small>
+            </article>
+
+            <article class="stat-card">
+              <div class="stat-top"><span>EM AVAL</span><i>◷</i></div>
+              <strong id="stat-on-review">0</strong>
+              <small>AVALIAÇÕES ATIVAS</small>
+            </article>
+          </div>
+
+          <div class="department-grid">
+            <article class="panel-card department-card">
+              <div class="department-logo">
+                <img src="assets/imagens/bfe.png" alt="BFE" onerror="this.hidden=true">
+                <span>🛡️</span>
+              </div>
+              <span class="department-tag">DEPARTAMENTO OPERACIONAL</span>
+              <h2>BFE</h2>
+              <p>Patrulhamento, operações, treinamentos e cotas.</p>
+              <div class="card-bottom">
+                <span><strong id="dashboard-bfe-count">0</strong> MEMBROS</span>
+                <button type="button" class="btn btn-secondary" data-page="bfe">ACESSAR →</button>
+              </div>
+            </article>
+
+            <article class="panel-card department-card">
+              <div class="department-logo">
+                <img src="assets/imagens/sgb.png" alt="SGB" onerror="this.hidden=true">
+                <span>🔎</span>
+              </div>
+              <span class="department-tag">DEPARTAMENTO ADMINISTRATIVO</span>
+              <h2>SGB</h2>
+              <p>Tickets, registros, procedimentos e cotas semanais.</p>
+              <div class="card-bottom">
+                <span><strong id="dashboard-sgb-count">0</strong> MEMBROS</span>
+                <button type="button" class="btn btn-secondary" data-page="sgb">ACESSAR →</button>
+              </div>
+            </article>
+          </div>
+
+          <div class="lower-grid">
+            <article class="panel-card">
+              <div class="panel-heading">
+                <div><h2>ATIVIDADE RECENTE</h2><p>Últimas alterações registradas no servidor.</p></div>
+                <button type="button" class="text-btn" data-page="logs">VER TODOS →</button>
+              </div>
+              <div id="dashboard-recent-logs" class="recent-logs">
+                <div class="empty-state">▤<p>Nenhuma atividade registrada.</p></div>
+              </div>
+            </article>
+
+            <article class="panel-card">
+              <div class="panel-heading">
+                <div><h2>ATALHOS</h2><p>Acesse as ferramentas principais.</p></div>
+              </div>
+              <div class="quick-actions">
+                <button type="button" data-open-modal="member-modal">
+                  <span>＋</span><div><strong>NOVO MEMBRO</strong><small>CADASTRAR INTEGRANTE</small></div><b>→</b>
+                </button>
+                <button type="button" data-page="quotas">
+                  <span>◷</span><div><strong>COTAS SEMANAIS</strong><small>ACOMPANHAR RESULTADOS</small></div><b>→</b>
+                </button>
+                <button type="button" data-page="training">
+                  <span>✦</span><div><strong>TREINAMENTOS</strong><small>GERAR RELATÓRIO</small></div><b>→</b>
+                </button>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- CENTRAL DE MEMBROS -->
+        <section id="page-members" class="page-section" hidden>
+          <div class="page-heading">
+            <div>
+              <span class="eyebrow">CADASTRO E HIERARQUIA</span>
+              <h1>Central de membros</h1>
+              <p>Todos os integrantes organizados por departamento e patente.</p>
+            </div>
+            <button type="button" class="btn btn-primary" data-open-modal="member-modal">＋ ADICIONAR MEMBRO</button>
+          </div>
+
+          <div class="filter-bar panel-card">
+            <input id="members-search" type="search" placeholder="⌕ Buscar Discord, Roblox ou patente...">
+            <select id="members-department-filter" aria-label="Filtrar departamento">
+              <option value="TODOS">TODOS OS DEPARTAMENTOS</option>
+              <option value="BFE">BFE</option>
+              <option value="SGB">SGB</option>
+            </select>
+            <select id="members-rank-filter" aria-label="Filtrar patente">
+              <option value="">TODAS AS PATENTES</option>
+            </select>
+            <button type="button" id="refresh-members" class="btn btn-secondary">↻ ATUALIZAR</button>
+          </div>
+
+          <div id="members-hierarchy-container" class="hierarchy-container">
+            <div class="empty-state">♙<p>Os membros cadastrados aparecerão aqui, agrupados por patente.</p></div>
+          </div>
+        </section>
+
+        <!-- BFE -->
+        <section id="page-bfe" class="page-section" hidden>
+          <div class="page-heading">
+            <div class="department-heading">
+              <img src="assets/imagens/bfe.png" alt="BFE" onerror="this.hidden=true">
+              <div>
+                <span class="eyebrow">DEPARTAMENTO OPERACIONAL</span>
+                <h1>BFE</h1>
+                <p>Hierarquia, membros e acompanhamento operacional.</p>
+              </div>
+            </div>
+            <button type="button" class="btn btn-primary" data-open-modal="member-modal" data-department="BFE">＋ ADICIONAR AO BFE</button>
+          </div>
+
+          <div class="mini-stats">
+            <article class="panel-card"><span>MEMBROS</span><strong id="bfe-total">0</strong></article>
+            <article class="panel-card"><span>EM TESTE</span><strong id="bfe-tests">0</strong></article>
+            <article class="panel-card"><span>EM AVAL</span><strong id="bfe-reviews">0</strong></article>
+            <article class="panel-card"><span>COTAS PENDENTES</span><strong id="bfe-pending-quotas">0</strong></article>
+          </div>
+
+          <article class="panel-card">
+            <div class="panel-heading">
+              <div><h2>HIERARQUIA BFE</h2><p>Integrantes separados por patente.</p></div>
+            </div>
+            <div id="bfe-hierarchy-container" class="hierarchy-container">
+              <div class="empty-state">🛡️<p>Nenhum membro cadastrado no BFE.</p></div>
+            </div>
+          </article>
+        </section>
+
+        <!-- SGB -->
+        <section id="page-sgb" class="page-section" hidden>
+          <div class="page-heading">
+            <div class="department-heading">
+              <img src="assets/imagens/sgb.png" alt="SGB" onerror="this.hidden=true">
+              <div>
+                <span class="eyebrow">DEPARTAMENTO ADMINISTRATIVO</span>
+                <h1>SGB</h1>
+                <p>Hierarquia, registros e acompanhamento administrativo.</p>
+              </div>
+            </div>
+            <button type="button" class="btn btn-primary" data-open-modal="member-modal" data-department="SGB">＋ ADICIONAR À SGB</button>
+          </div>
+
+          <div class="mini-stats">
+            <article class="panel-card"><span>MEMBROS</span><strong id="sgb-total">0</strong></article>
+            <article class="panel-card"><span>EM TESTE</span><strong id="sgb-tests">0</strong></article>
+            <article class="panel-card"><span>EM AVAL</span><strong id="sgb-reviews">0</strong></article>
+            <article class="panel-card"><span>COTAS PENDENTES</span><strong id="sgb-pending-quotas">0</strong></article>
+          </div>
+
+          <article class="panel-card">
+            <div class="panel-heading">
+              <div><h2>HIERARQUIA SGB</h2><p>Integrantes separados por patente.</p></div>
+            </div>
+            <div id="sgb-hierarchy-container" class="hierarchy-container">
+              <div class="empty-state">🔎<p>Nenhum membro cadastrado na SGB.</p></div>
+            </div>
+          </article>
+        </section>
+
+        <!-- COTAS SEMANAIS -->
+        <section id="page-quotas" class="page-section" hidden>
+          <div class="page-heading">
+            <div>
+              <span class="eyebrow">ACOMPANHAMENTO SEMANAL</span>
+              <h1>Cotas semanais</h1>
+              <p>Lance patrulhamentos e atividades; o progresso deve ser calculado automaticamente.</p>
+            </div>
+            <button type="button" class="btn btn-secondary" id="refresh-quotas">↻ ATUALIZAR</button>
+          </div>
+
+          <div class="quota-notice">
+            <span>🛡️</span>
+            <div>
+              <strong>IMUNIDADE E REDUÇÃO DE COTA</strong>
+              <p>Alto Comando, AFEX e patentes sem cota aparecem como IMUNE. Professor EPF tem redução de 30% apenas na cota semanal do BFE.</p>
+            </div>
+          </div>
+
+          <div class="quota-tabs">
+            <button type="button" class="quota-tab active" data-quota-department="BFE">🛡️ COTAS BFE</button>
+            <button type="button" class="quota-tab" data-quota-department="SGB">🔎 COTAS SGB</button>
+          </div>
+
+          <article class="panel-card quota-launcher">
+            <div class="panel-heading">
+              <div><h2>LANÇAR ATIVIDADE DO BFE</h2><p>Os lançamentos são somados ao total do membro.</p></div>
+            </div>
+
+            <form id="patrol-form">
+              <div class="form-grid">
+                <div class="field">
+                  <label for="patrol-member">MEMBRO</label>
+                  <select id="patrol-member" required>
+                    <option value="">SELECIONE O MEMBRO</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="patrol-type">TIPO DE ATIVIDADE</label>
+                  <select id="patrol-type" required>
+                    <option value="PATRULHAMENTO">PATRULHAMENTO MANUAL</option>
+                    <option value="TREINO PARKUOR">TREINO PARKUOR (+30 MIN POR PARTICIPAÇÃO)</option>
+                    <option value="TREINO PVP">TREINO PVP (+30 MIN POR PARTICIPAÇÃO)</option>
+                    <option value="OPERAÇÃO">OPERAÇÃO (+1 H / PATRULHAMENTO OU +1 TAF)</option>
+                    <option value="PATRULHAMENTO GERAL">PATRULHAMENTO GERAL (+1 H / PATRULHAMENTO OU +1 TAF)</option>
+                    <option value="RANQUEADO">RANQUEADO (+1 H / PATRULHAMENTO OU +1 TAF)</option>
+                  </select>
+                </div>
+
+                <div class="field" id="patrol-hours-wrap">
+                  <label for="patrol-hours">HORAS</label>
+                  <input id="patrol-hours" type="number" min="0" max="999" value="0" required>
+                </div>
+
+                <div class="field" id="patrol-minutes-wrap">
+                  <label for="patrol-minutes">MINUTOS</label>
+                  <input id="patrol-minutes" type="number" min="0" max="59" value="0" required>
+                </div>
+
+                <div class="field" id="patrol-seconds-wrap">
+                  <label for="patrol-seconds">SEGUNDOS</label>
+                  <input id="patrol-seconds" type="number" min="0" max="59" value="0" required>
+                </div>
+
+                <div class="field" id="patrol-quantity-wrap" hidden>
+                  <label for="patrol-quantity">QUANTIDADE DE PARTICIPAÇÕES</label>
+                  <input id="patrol-quantity" type="number" min="1" step="1" value="1">
+                </div>
+
+                <div class="field">
+                  <label for="patrol-notes">OBSERVAÇÃO (OPCIONAL)</label>
+                  <input id="patrol-notes" type="text" maxlength="250" placeholder="Detalhes do lançamento">
+                </div>
+              </div>
+
+              <p id="patrol-preview" class="quota-preview">Total deste lançamento: 00:00:00</p>
+              <p id="patrol-form-message" class="form-message" role="status"></p>
+
+              <div class="modal-actions">
+                <button class="btn btn-primary" id="patrol-submit" type="submit">＋ LANÇAR ATIVIDADE</button>
+              </div>
+            </form>
+          </article>
+
+          <div id="quotas-container" class="quota-members">
+            <div class="empty-state">◷<p>Selecione um departamento para visualizar as cotas.</p></div>
+          </div>
+        </section>
+
+        <!-- FANTASMAS EM TESTE -->
+        <section id="page-tests" class="page-section" hidden>
+          <div class="page-heading">
+            <div>
+              <span class="eyebrow">ACOMPANHAMENTO DE 48 HORAS</span>
+              <h1>Fantasmas em teste</h1>
+              <p>O prazo é calculado a partir da entrada no servidor do Discord.</p>
+            </div>
+          </div>
+
+          <div class="quota-notice">
+            <span>⌛</span>
+            <div>
+              <strong>PRAZO DE 48 HORAS</strong>
+              <p>Quando o prazo acabar, o nome ficará destacado em vermelho. Use remover quando o cargo de teste for retirado.</p>
+            </div>
+          </div>
+
+          <article class="panel-card">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>MEMBRO</th>
+                    <th>DEPARTAMENTO</th>
+                    <th>ENTRADA NO DISCORD</th>
+                    <th>TEMPO RESTANTE</th>
+                    <th>AÇÃO</th>
+                  </tr>
+                </thead>
+                <tbody id="tests-table">
+                  <tr><td colspan="5" class="table-empty">Nenhum membro em teste.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <!-- TREINAMENTOS -->
+        <section id="page-training" class="page-section" hidden>
+          <div class="page-heading">
+            <div>
+              <span class="eyebrow">REGISTRO OPERACIONAL</span>
+              <h1>Treinamentos</h1>
+              <p>Gere relatórios de presença e faltas; relatórios salvos não poderão ser editados.</p>
+            </div>
+            <button type="button" class="btn btn-primary" data-open-modal="training-modal">＋ ADICIONAR TREINO</button>
+          </div>
+
+          <div class="stats-grid stats-grid-three">
+            <article class="stat-card">
+              <div class="stat-top"><span>RELATÓRIOS</span><i>✦</i></div>
+              <strong id="training-total">0</strong>
+              <small>TREINOS REGISTRADOS</small>
+            </article>
+            <article class="stat-card">
+              <div class="stat-top"><span>PRESENÇAS</span><i>✓</i></div>
+              <strong id="training-attendance">0</strong>
+              <small>PARTICIPAÇÕES REGISTRADAS</small>
+            </article>
+            <article class="stat-card">
+              <div class="stat-top"><span>FALTAS</span><i>!</i></div>
+              <strong id="training-absences">0</strong>
+              <small>FALTAS REGISTRADAS</small>
+            </article>
+          </div>
+
+          <article class="panel-card">
+            <div class="panel-heading">
+              <div><h2>RELATÓRIOS SALVOS</h2><p>Disponíveis para consulta, sem edição.</p></div>
+              <input id="training-search" type="search" placeholder="Buscar relatório...">
+            </div>
+
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>TREINAMENTO</th>
+                    <th>DEPARTAMENTO</th>
+                    <th>DATA</th>
+                    <th>INSTRUTOR</th>
+                    <th>PRESENTES</th>
+                    <th>FALTAS</th>
+                    <th>AÇÕES</th>
+                  </tr>
+                </thead>
+                <tbody id="training-table">
+                  <tr><td colspan="7" class="table-empty">Nenhum relatório salvo.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <!-- DIAS INATIVOS -->
+        <section id="page-inactivity" class="page-section" hidden>
+          <div class="page-heading">
+            <div>
+              <span class="eyebrow">CONTROLE DE ATIVIDADE</span>
+              <h1>Dias inativos</h1>
+              <p>Registre os dias sem atividade e acompanhe a ação prevista.</p>
+            </div>
+          </div>
+
+          <div class="rule-grid">
+            <article class="rule-card"><span>⚠️</span><div><strong>2 DIAS</strong><p>700 JJ'S</p></div></article>
+            <article class="rule-card"><span>📋</span><div><strong>5 DIAS</strong><p>ADVERTÊNCIA</p></div></article>
+            <article class="rule-card"><span>🚫</span><div><strong>7 DIAS</strong><p>EXÍLIO</p></div></article>
+          </div>
+
+          <div class="quota-notice">
+            <span>🛡️</span>
+            <div>
+              <strong>EXCLUÍDOS DO CONTROLE</strong>
+              <p>Alto Comando, AFEX, Comandante, Subcomandante e Supervisor Geral.</p>
+            </div>
+          </div>
+
+          <article class="panel-card">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>MEMBRO</th>
+                    <th>DEPARTAMENTO</th>
+                    <th>PATENTE</th>
+                    <th>DIAS INATIVOS</th>
+                    <th>AÇÃO PREVISTA</th>
+                    <th>CONTROLE</th>
+                  </tr>
+                </thead>
+                <tbody id="inactivity-table">
+                  <tr><td colspan="6" class="table-empty">Nenhum membro disponível.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <!-- LOGS -->
+        <section id="page-logs" class="page-section" hidden>
+          <div class="page-heading">
+            <div>
+              <span class="eyebrow">AUDITORIA DO SISTEMA</span>
+              <h1>Logs do servidor</h1>
+              <p>Data, horário, usuário responsável e descrição das alterações.</p>
+            </div>
+            <button type="button" id="refresh-logs" class="btn btn-secondary">↻ ATUALIZAR LOGS</button>
+          </div>
+
+          <div class="stats-grid stats-grid-three">
+            <article class="stat-card">
+              <div class="stat-top"><span>REGISTROS</span><i>▤</i></div>
+              <strong id="logs-total">0</strong>
+              <small>EVENTOS REGISTRADOS</small>
+            </article>
+            <article class="stat-card">
+              <div class="stat-top"><span>USUÁRIOS</span><i>♙</i></div>
+              <strong id="logs-users">0</strong>
+              <small>RESPONSÁVEIS IDENTIFICADOS</small>
+            </article>
+            <article class="stat-card">
+              <div class="stat-top"><span>ÚLTIMA ATIVIDADE</span><i>◷</i></div>
+              <strong id="logs-last-time">—</strong>
+              <small>HORÁRIO LOCAL</small>
+            </article>
+          </div>
+
+          <div class="filter-bar panel-card">
+            <input id="logs-search" type="search" placeholder="Buscar usuário ou alteração...">
+            <select id="logs-type-filter" aria-label="Filtrar tipo de evento">
+              <option value="">TODOS OS EVENTOS</option>
+              <option value="MEMBRO">MEMBROS</option>
+              <option value="COTA">COTAS</option>
+              <option value="TREINO">TREINAMENTOS</option>
+              <option value="AVAL">AVALIAÇÕES</option>
+              <option value="INATIVIDADE">INATIVIDADE</option>
+              <option value="AUTENTICACAO">ACESSO</option>
+            </select>
+          </div>
+
+          <article class="panel-card">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>DATA E HORA</th>
+                    <th>USUÁRIO RESPONSÁVEL</th>
+                    <th>EVENTO</th>
+                    <th>ALTERAÇÃO</th>
+                  </tr>
+                </thead>
+                <tbody id="logs-table">
+                  <tr><td colspan="4" class="table-empty">Nenhum registro disponível.</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div id="logs-pagination" class="pagination"></div>
+          </article>
+        </section>
+      </main>
+
+      <footer class="app-footer">
+        <span>FANTASMAS <i>/</i> CENTRAL DE GESTÃO</span>
+        <span><span class="status-dot"></span> SINCRONIZAÇÃO DEPENDE DA CONFIGURAÇÃO DO SUPABASE</span>
+      </footer>
+    </div>
+  </div>
+
+  <!-- MODAL: ADICIONAR / EDITAR MEMBRO -->
+  <div id="member-modal" class="modal" hidden aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal="member-modal"></div>
+    <section class="modal-dialog modal-large" role="dialog" aria-modal="true" aria-labelledby="member-modal-title">
+      <header class="modal-header">
+        <div>
+          <span class="eyebrow">CADASTRO DA ORGANIZAÇÃO</span>
+          <h2 id="member-modal-title">Adicionar membro</h2>
+          <p>Preencha os dados e privilégios do integrante.</p>
+        </div>
+        <button type="button" class="icon-btn" data-close-modal="member-modal" aria-label="Fechar">✕</button>
+      </header>
+
+      <form id="member-form">
+        <input type="hidden" id="member-id">
+
+        <h3 class="form-section-title">INFORMAÇÕES DO MEMBRO</h3>
+        <div class="form-grid">
+          <div class="field">
+            <label for="member-discord">NOME DISCORD</label>
+            <input id="member-discord" type="text" maxlength="100" placeholder="Nome no Discord" required>
+          </div>
+
+          <div class="field">
+            <label for="member-roblox">NOME ROBLOX</label>
+            <input id="member-roblox" type="text" maxlength="100" placeholder="Nome no Roblox" required>
+          </div>
+
+          <div class="field">
+            <label for="member-department">DEPARTAMENTO</label>
+            <select id="member-department" required>
+              <option value="">SELECIONE</option>
+              <option value="BFE">BFE</option>
+              <option value="SGB">SGB</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="member-rank">PATENTE</label>
+            <select id="member-rank" required disabled>
+              <option value="">SELECIONE O DEPARTAMENTO</option>
+            </select>
+          </div>
+        </div>
+
+        <h3 class="form-section-title">SITUAÇÃO E PRIVILÉGIOS</h3>
+        <div class="form-grid">
+          <div class="field">
+            <label for="member-testing">FANTASMA EM TESTE?</label>
+            <select id="member-testing">
+              <option value="NAO">NÃO</option>
+              <option value="SIM">SIM</option>
+            </select>
+          </div>
+
+          <div class="field" id="member-entry-date-wrap" hidden>
+            <label for="member-discord-entry">ENTRADA NO SERVIDOR DISCORD</label>
+            <input id="member-discord-entry" type="datetime-local">
+          </div>
+
+          <div class="field">
+            <label for="member-high-command">ALTO COMANDO?</label>
+            <select id="member-high-command">
+              <option value="NAO">NÃO</option>
+              <option value="SIM">SIM — IMUNIDADE TOTAL</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="member-epf">PROFESSOR EPF?</label>
+            <select id="member-epf">
+              <option value="NAO">NÃO</option>
+              <option value="SIM">SIM — -30% NA COTA SEMANAL BFE</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="member-afex">AFEX?</label>
+            <select id="member-afex">
+              <option value="NAO">NÃO</option>
+              <option value="SIM">SIM — IMUNIDADE TOTAL</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="member-immunity-notice" class="quota-notice" hidden>
+          <span>🛡️</span>
+          <div>
+            <strong>IMUNIDADE TOTAL</strong>
+            <p>Sem punições, advertências, cobranças de cota ou inclusão em listas de faltas.</p>
+          </div>
+        </div>
+
+        <p id="member-form-message" class="form-message" role="status" aria-live="polite"></p>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close-modal="member-modal">CANCELAR</button>
+          <button type="submit" id="member-save-button" class="btn btn-primary">✓ SALVAR MEMBRO</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <!-- MODAL: VER MEMBRO -->
+  <div id="view-member-modal" class="modal" hidden aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal="view-member-modal"></div>
+    <section class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="view-member-title">
+      <header class="modal-header">
+        <div>
+          <span class="eyebrow">FICHA INDIVIDUAL</span>
+          <h2 id="view-member-title">Detalhes do membro</h2>
+        </div>
+        <button type="button" class="icon-btn" data-close-modal="view-member-modal" aria-label="Fechar">✕</button>
+      </header>
+      <div id="member-details-content" class="member-details-content"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" data-close-modal="view-member-modal">FECHAR</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- MODAL: AVAL -->
+  <div id="aval-modal" class="modal" hidden aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal="aval-modal"></div>
+    <section class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="aval-modal-title">
+      <header class="modal-header">
+        <div>
+          <span class="eyebrow">CONTROLE DE AFASTAMENTO</span>
+          <h2 id="aval-modal-title">Colocar em AVAL</h2>
+          <p>O aval deverá ser encerrado na data final pelo sistema conectado.</p>
+        </div>
+        <button type="button" class="icon-btn" data-close-modal="aval-modal" aria-label="Fechar">✕</button>
+      </header>
+
+      <form id="aval-form">
+        <input type="hidden" id="aval-member-id">
+        <div class="form-grid">
+          <div class="field">
+            <label for="aval-start">INÍCIO</label>
+            <input id="aval-start" type="datetime-local" required>
+          </div>
+
+          <div class="field">
+            <label for="aval-end">TÉRMINO</label>
+            <input id="aval-end" type="datetime-local" required>
+          </div>
+
+          <div class="field field-full">
+            <label for="aval-reason">MOTIVO (OPCIONAL)</label>
+            <textarea id="aval-reason" rows="3" maxlength="1000" placeholder="Motivo ou observações"></textarea>
+          </div>
+        </div>
+
+        <p id="aval-form-message" class="form-message" role="status"></p>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close-modal="aval-modal">CANCELAR</button>
+          <button type="submit" class="btn btn-primary">SALVAR AVAL</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <!-- MODAL: ADICIONAR TREINAMENTO -->
+  <div id="training-modal" class="modal" hidden aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal="training-modal"></div>
+    <section class="modal-dialog modal-large" role="dialog" aria-modal="true" aria-labelledby="training-modal-title">
+      <header class="modal-header">
+        <div>
+          <span class="eyebrow">NOVO REGISTRO OPERACIONAL</span>
+          <h2 id="training-modal-title">Adicionar treinamento</h2>
+          <p>O relatório ficará salvo para consulta, sem edição.</p>
+        </div>
+        <button type="button" class="icon-btn" data-close-modal="training-modal" aria-label="Fechar">✕</button>
+      </header>
+
+      <form id="training-form">
+        <div class="form-grid">
+          <div class="field">
+            <label for="training-type">TIPO DE TREINAMENTO</label>
+            <select id="training-type" required>
+              <option value="">SELECIONE</option>
+              <option>TREINO PARKUOR</option>
+              <option>TREINO PVP</option>
+              <option>OPERAÇÃO</option>
+              <option>PATRULHAMENTO GERAL</option>
+              <option>RANQUEADO</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="training-department">DEPARTAMENTO</label>
+            <select id="training-department" required>
+              <option value="BFE">BFE</option>
+              <option value="SGB">SGB</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="training-date">DATA E HORA</label>
+            <input id="training-date" type="datetime-local" required>
+          </div>
+
+          <div class="field">
+            <label for="training-instructor">INSTRUTOR</label>
+            <input id="training-instructor" type="text" maxlength="150" placeholder="Nome do instrutor" required>
+          </div>
+
+          <div class="field field-full">
+            <label for="training-assistants">AUXILIARES</label>
+            <textarea id="training-assistants" rows="2" placeholder="Nomes separados por vírgulas"></textarea>
+          </div>
+
+          <div class="field field-full">
+            <label for="training-present">QUEM PARTICIPOU</label>
+            <textarea id="training-present" rows="3" placeholder="Nomes separados por vírgulas"></textarea>
+          </div>
+
+          <div class="field field-full">
+            <label for="training-justified">QUEM JUSTIFICOU</label>
+            <textarea id="training-justified" rows="2" placeholder="Nomes separados por vírgulas"></textarea>
+          </div>
+
+          <div class="field field-full">
+            <label for="training-aval">QUEM ESTÁ DE AVAL</label>
+            <textarea id="training-aval" rows="2" placeholder="Nomes separados por vírgulas"></textarea>
+          </div>
+        </div>
+
+        <div class="quota-notice">
+          <span>ⓘ</span>
+          <div>
+            <strong>FALTAS AUTOMÁTICAS</strong>
+            <p>Considera os membros do departamento, excluindo Alto Comando, AFEX, aval, justificativas, Comandante, Subcomandante e Supervisor Geral.</p>
+          </div>
+        </div>
+
+        <div id="training-absence-preview" class="absence-preview" hidden>
+          <h3>PRÉVIA DE FALTAS</h3>
+          <div id="training-absence-list"></div>
+        </div>
+
+        <p id="training-form-message" class="form-message" role="status"></p>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close-modal="training-modal">CANCELAR</button>
+          <button type="submit" id="training-save-button" class="btn btn-primary">✓ GERAR RELATÓRIO</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <!-- MODAL: VISUALIZAR RELATÓRIO -->
+  <div id="training-report-modal" class="modal" hidden aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal="training-report-modal"></div>
+    <section class="modal-dialog modal-large" role="dialog" aria-modal="true" aria-labelledby="training-report-title">
+      <header class="modal-header">
+        <div>
+          <span class="eyebrow">RELATÓRIO ARQUIVADO</span>
+          <h2 id="training-report-title">Relatório de treinamento</h2>
+          <p>Somente visualização — não editável.</p>
+        </div>
+        <button type="button" class="icon-btn" data-close-modal="training-report-modal" aria-label="Fechar">✕</button>
+      </header>
+
+      <div id="training-report-content" class="report-content"></div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" data-close-modal="training-report-modal">FECHAR</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- MODAL: CONFIRMAR AÇÃO -->
+  <div id="confirm-modal" class="modal" hidden aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal="confirm-modal"></div>
+    <section class="modal-dialog confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+      <div class="confirm-icon">!</div>
+      <h2 id="confirm-title">CONFIRMAR AÇÃO</h2>
+      <p id="confirm-message">Deseja continuar?</p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" data-close-modal="confirm-modal">CANCELAR</button>
+        <button type="button" class="btn btn-danger" id="confirm-action-button">CONFIRMAR</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- NOTIFICAÇÕES -->
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="false"></div>
+
+  <!-- BIBLIOTEIRA SUPABASE E ARQUIVOS DO PROJETO -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
